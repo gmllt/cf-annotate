@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/gmllt/cf-annotate/metadata"
 
 	"github.com/orange-cloudfoundry/cf-security-entitlement/plugin/messages"
