@@ -84,10 +84,51 @@ func patchResource(resourceType ResourceType, resourceGUID string, data *CommonR
 		return err
 	}
 
+	fmt.Println("curl", "-X", "PATCH", "/v3/"+string(resourceType)+"/"+resourceGUID, "-d", string(dataString))
 	_, err = cliConnection.CliCommandWithoutTerminalOutput("curl", "-X", "PATCH", "/v3/"+string(resourceType)+"/"+resourceGUID, "-d", string(dataString))
+	// print command
 	if err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func getOrg(resourceGUID string) (*CommonResource, error) {
+	result, err := cliConnection.CliCommandWithoutTerminalOutput("curl", "/v3/organizations/"+resourceGUID)
+	if err != nil {
+		return nil, err
+	}
+	var resource CommonResource
+	err = json.Unmarshal([]byte(strings.Join(result, "\n")), &resource)
+	if err != nil {
+		return nil, err
+	}
+	return &resource, nil
+}
+
+func getSpace(resourceGUID string) (*CommonResource, error) {
+	result, err := cliConnection.CliCommandWithoutTerminalOutput("curl", "/v3/spaces/"+resourceGUID)
+	if err != nil {
+		return nil, err
+	}
+	var resource CommonResource
+	err = json.Unmarshal([]byte(strings.Join(result, "\n")), &resource)
+	if err != nil {
+		return nil, err
+	}
+	return &resource, nil
+}
+
+func getApp(resourceGUID string) (*CommonResource, error) {
+	result, err := cliConnection.CliCommandWithoutTerminalOutput("curl", "/v3/apps/"+resourceGUID)
+	if err != nil {
+		return nil, err
+	}
+	var resource CommonResource
+	err = json.Unmarshal([]byte(strings.Join(result, "\n")), &resource)
+	if err != nil {
+		return nil, err
+	}
+	return &resource, nil
 }

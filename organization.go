@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/gmllt/cf-annotate/metadata"
 
 	"github.com/orange-cloudfoundry/cf-security-entitlement/plugin/messages"
 )
@@ -22,10 +23,24 @@ type AddOrgLabelCommand struct {
 	AddOrgOptions AddOrgOptions `required:"2" positional-args:"true"`
 }
 
+type ListOrgOptions struct {
+	Org string `positional-arg-name:"ORG" required:"true" description:"Organization to resume"`
+}
+
+type ListOrgAnnotationCommand struct {
+	API            string         `short:"a" long:"api" description:"API endpoint (e.g. https://api.example.com)"`
+	ListOrgOptions ListOrgOptions `required:"2" positional-args:"true"`
+}
+
+type ListOrgLabelCommand struct {
+	API            string         `short:"a" long:"api" description:"API endpoint (e.g. https://api.example.com)"`
+	ListOrgOptions ListOrgOptions `required:"2" positional-args:"true"`
+}
+
 var addOrgAnnotationCommand AddOrgAnnotationCommand
 var addOrgLabelCommand AddOrgLabelCommand
 
-func ExecuteAddingOrg(elementType MetadataElementType, orgName string, key string, value string) error {
+func ExecuteAddingOrg(elementType metadata.MetadataElementType, orgName string, key string, value string) error {
 	username, err := cliConnection.Username()
 	if err != nil {
 		return err
@@ -53,12 +68,43 @@ func ExecuteAddingOrg(elementType MetadataElementType, orgName string, key strin
 	return nil
 }
 
+func ExecuteListOrg(elementType metadata.MetadataElementType, orgName string) error {
+	orgID, err := getOrgID(orgName)
+	if err != nil {
+		return err
+	}
+
+	data, err := getOrg(orgID)
+	if err != nil {
+		return err
+	}
+
+	if elementType == metadata.MetadataAnnotationType {
+		for k, v := range data.Metadata.Annotations {
+			_, _ = messages.Printf("%s: %s\n", k, v)
+		}
+	} else {
+		for k, v := range data.Metadata.Labels {
+			_, _ = messages.Printf("%s: %s\n", k, v)
+		}
+	}
+	return nil
+}
+
+func (c *ListOrgAnnotationCommand) Execute(_ []string) error {
+	return ExecuteListOrg(metadata.MetadataAnnotationType, c.ListOrgOptions.Org)
+}
+
+func (c *ListOrgLabelCommand) Execute(_ []string) error {
+	return ExecuteListOrg(metadata.MetadataLabelType, c.ListOrgOptions.Org)
+}
+
 func (c *AddOrgAnnotationCommand) Execute(_ []string) error {
-	return ExecuteAddingOrg(MetadataAnnotationType, c.AddOrgOptions.Org, c.AddOrgOptions.Key, c.AddOrgOptions.Val)
+	return ExecuteAddingOrg(metadata.MetadataAnnotationType, c.AddOrgOptions.Org, c.AddOrgOptions.Key, c.AddOrgOptions.Val)
 }
 
 func (c *AddOrgLabelCommand) Execute(_ []string) error {
-	return ExecuteAddingOrg(MetadataLabelType, c.AddOrgOptions.Org, c.AddOrgOptions.Key, c.AddOrgOptions.Val)
+	return ExecuteAddingOrg(metadata.MetadataLabelType, c.AddOrgOptions.Org, c.AddOrgOptions.Key, c.AddOrgOptions.Val)
 }
 
 func init() {
@@ -77,6 +123,24 @@ func init() {
 		desc,
 		desc,
 		&addOrgLabelCommand)
+	if err != nil {
+		panic(err)
+	}
+	desc = `List all annotations of an organization.`
+	_, err = parser.AddCommand(
+		"list-org-annotation",
+		desc,
+		desc,
+		&ListOrgAnnotationCommand{})
+	if err != nil {
+		panic(err)
+	}
+	desc = `List all labels of an organization.`
+	_, err = parser.AddCommand(
+		"list-org-label",
+		desc,
+		desc,
+		&ListOrgLabelCommand{})
 	if err != nil {
 		panic(err)
 	}

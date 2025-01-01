@@ -73,13 +73,14 @@ func (c *AnnotatePlugin) GetMetadata() plugin.PluginMetadata {
 					Usage: fmt.Sprintf("cf %s-%s-%s %s_NAME KEY", removeCommand, resource, element, strings.ToUpper(resource)),
 				},
 			})
+			*/
 			commands = append(commands, plugin.Command{
 				Name:     fmt.Sprintf("%s-%s-%s", listCommand, resource, element),
 				HelpText: fmt.Sprintf("List all %ss of a %s.\n   If the %s does not exist, nothing happens.", element, resource, resource),
 				UsageDetails: plugin.Usage{
 					Usage: fmt.Sprintf("cf %s-%s-%s %s_NAME", listCommand, resource, element, strings.ToUpper(resource)),
 				},
-			})*/
+			})
 		}
 	}
 	return plugin.PluginMetadata{

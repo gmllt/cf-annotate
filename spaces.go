@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+	"github.com/gmllt/cf-annotate/metadata"
 
 	"github.com/orange-cloudfoundry/cf-security-entitlement/plugin/messages"
 )
 
 type AddSpaceOptions struct {
-	Space string `positional-arg-name:"ORG" required:"true" description:"Space to resume"`
+	Space string `positional-arg-name:"SPACE" required:"true" description:"Space to resume"`
 	Key   string `positional-arg-name:"KEY" required:"true" description:"Key of the annotation or label"`
 	Val   string `positional-arg-name:"VALUE" required:"true" description:"Value of the annotation or label"`
 }
@@ -25,7 +26,7 @@ type AddSpaceLabelCommand struct {
 var addSpaceAnnotationCommand AddSpaceAnnotationCommand
 var addSpaceLabelCommand AddSpaceLabelCommand
 
-func ExecuteAddingSpace(elementType MetadataElementType, spaceName string, key string, value string) error {
+func ExecuteAddingSpace(elementType metadata.MetadataElementType, spaceName string, key string, value string) error {
 	username, err := cliConnection.Username()
 	if err != nil {
 		return err
@@ -63,11 +64,11 @@ func ExecuteAddingSpace(elementType MetadataElementType, spaceName string, key s
 }
 
 func (c *AddSpaceAnnotationCommand) Execute(_ []string) error {
-	return ExecuteAddingSpace(MetadataAnnotationType, c.AddSpaceOptions.Space, c.AddSpaceOptions.Key, c.AddSpaceOptions.Val)
+	return ExecuteAddingSpace(metadata.MetadataAnnotationType, c.AddSpaceOptions.Space, c.AddSpaceOptions.Key, c.AddSpaceOptions.Val)
 }
 
 func (c *AddSpaceLabelCommand) Execute(_ []string) error {
-	return ExecuteAddingSpace(MetadataLabelType, c.AddSpaceOptions.Space, c.AddSpaceOptions.Key, c.AddSpaceOptions.Val)
+	return ExecuteAddingSpace(metadata.MetadataLabelType, c.AddSpaceOptions.Space, c.AddSpaceOptions.Key, c.AddSpaceOptions.Val)
 }
 
 func init() {

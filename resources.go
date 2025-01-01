@@ -1,24 +1,11 @@
 package main
 
-import "code.cloudfoundry.org/cli/types"
-
-type MetadataElementType string
-
-const (
-	MetadataAnnotationType MetadataElementType = "annotation"
-	MetadataLabelType      MetadataElementType = "label"
+import (
+	"github.com/gmllt/cf-annotate/metadata"
 )
 
-type Annotation types.NullString
-type Label types.NullString
-
-type Metadata struct {
-	Labels      map[string]Label      `json:"labels"`
-	Annotations map[string]Annotation `json:"annotations"`
-}
-
 type CommonResource struct {
-	Metadata Metadata `json:"metadata"`
+	Metadata metadata.Metadata `json:"metadata"`
 }
 
 type GUIDResource struct {
@@ -26,21 +13,21 @@ type GUIDResource struct {
 	GUID string `json:"guid"`
 }
 
-func (r *CommonResource) AddMetadataElement(element MetadataElementType, key string, value string) {
+func (r *CommonResource) AddMetadataElement(element metadata.MetadataElementType, key string, value string) {
 	switch element {
-	case MetadataAnnotationType:
+	case metadata.MetadataAnnotationType:
 		if r.Metadata.Annotations == nil {
-			r.Metadata.Annotations = make(map[string]Annotation)
+			r.Metadata.Annotations = make(map[string]metadata.Annotation)
 		}
-		r.Metadata.Annotations[key] = Annotation{Value: value, IsSet: true}
-	case MetadataLabelType:
+		r.Metadata.Annotations[key] = metadata.Annotation{Value: value, IsSet: true}
+	case metadata.MetadataLabelType:
 		if r.Metadata.Labels == nil {
-			r.Metadata.Labels = make(map[string]Label)
+			r.Metadata.Labels = make(map[string]metadata.Label)
 		}
-		r.Metadata.Labels[key] = Label{Value: value, IsSet: true}
+		r.Metadata.Labels[key] = metadata.Label{Value: value, IsSet: true}
 	}
 }
 
-func (r *CommonResource) RemoveMetadataElement(element MetadataElementType, key string) {
+func (r *CommonResource) RemoveMetadataElement(element metadata.MetadataElementType, key string) {
 	r.AddMetadataElement(element, key, "")
 }

@@ -2,12 +2,13 @@ package main
 
 import (
 	"fmt"
+	"github.com/gmllt/cf-annotate/metadata"
 
 	"github.com/orange-cloudfoundry/cf-security-entitlement/plugin/messages"
 )
 
 type AddAppOptions struct {
-	App string `positional-arg-name:"ORG" required:"true" description:"App to resume"`
+	App string `positional-arg-name:"APP" required:"true" description:"App to resume"`
 	Key string `positional-arg-name:"KEY" required:"true" description:"Key of the annotation or label"`
 	Val string `positional-arg-name:"VALUE" required:"true" description:"Value of the annotation or label"`
 }
@@ -25,7 +26,7 @@ type AddAppLabelCommand struct {
 var addAppAnnotationCommand AddAppAnnotationCommand
 var addAppLabelCommand AddAppLabelCommand
 
-func ExecuteAddingApp(elementType MetadataElementType, appName string, key string, value string) error {
+func ExecuteAddingApp(elementType metadata.MetadataElementType, appName string, key string, value string) error {
 	username, err := cliConnection.Username()
 	if err != nil {
 		return err
@@ -72,11 +73,11 @@ func ExecuteAddingApp(elementType MetadataElementType, appName string, key strin
 }
 
 func (c *AddAppAnnotationCommand) Execute(_ []string) error {
-	return ExecuteAddingApp(MetadataAnnotationType, c.AddAppOptions.App, c.AddAppOptions.Key, c.AddAppOptions.Val)
+	return ExecuteAddingApp(metadata.MetadataAnnotationType, c.AddAppOptions.App, c.AddAppOptions.Key, c.AddAppOptions.Val)
 }
 
 func (c *AddAppLabelCommand) Execute(_ []string) error {
-	return ExecuteAddingApp(MetadataLabelType, c.AddAppOptions.App, c.AddAppOptions.Key, c.AddAppOptions.Val)
+	return ExecuteAddingApp(metadata.MetadataLabelType, c.AddAppOptions.App, c.AddAppOptions.Key, c.AddAppOptions.Val)
 }
 
 func init() {
