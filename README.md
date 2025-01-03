@@ -10,18 +10,18 @@ A simple plugin to help you to annotate or label your Cloud Foundry organization
 ## Usage
 
 ```
-    add-org-label ORG_NAME KEY VALUE        Add a label to an org
-    add-space-label SPACE_NAME KEY VALUE    Add a label to a space
-    add-app-label APP_NAME KEY VALUE        Add a label to an app
+    set-org-label ORG_NAME KEY VALUE        Add a label to an org
+    set-space-label SPACE_NAME KEY VALUE    Add a label to a space
+    set-app-label APP_NAME KEY VALUE        Add a label to an app
 ```
 
 ## Planned
 
 ```
-    remove-org-label ORG_NAME KEY           Remove a label from an org
-    remove-space-label SPACE_NAME KEY       Remove a label from a space
-    remove-app-label APP_NAME KEY           Remove a label from an app
-    list-org-labels ORG_NAME                List labels of an org
-    list-space-labels SPACE_NAME            List labels of a space
-    list-app-labels APP_NAME                List labels of an app
+    delete-org-label ORG_NAME KEY           Remove a label from an org
+    delete-space-label SPACE_NAME KEY       Remove a label from a space
+    delete-app-label APP_NAME KEY           Remove a label from an app
+    show-org-labels ORG_NAME                List labels of an org
+    show-space-labels SPACE_NAME            List labels of a space
+    show-app-labels APP_NAME                List labels of an app
 ```

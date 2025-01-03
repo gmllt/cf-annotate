@@ -1,10 +1,10 @@
 package metadata
 
-type MetadataElementType string
+type ElementType string
 
 const (
-	MetadataAnnotationType MetadataElementType = "annotation"
-	MetadataLabelType      MetadataElementType = "label"
+	AnnotationType ElementType = "annotation"
+	LabelType      ElementType = "label"
 )
 
 type Metadata struct {

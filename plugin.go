@@ -6,27 +6,31 @@ import (
 	"io"
 	"strings"
 
+	"github.com/gmllt/cf-annotate/utils"
+	"github.com/gmllt/cf-annotate/utils/messages"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
+
 	"code.cloudfoundry.org/cli/plugin"
 	"github.com/jessevdk/go-flags"
-	"github.com/orange-cloudfoundry/cf-security-entitlement/plugin/messages"
 )
 
 type Options struct {
 }
 
 var (
-	pluginVersion        = "0.0.1"
-	options              Options
-	parser               = flags.NewParser(&options, flags.HelpFlag|flags.PassDoubleDash|flags.IgnoreUnknown)
-	cliConnection        plugin.CliConnection
+	pluginVersion = "0.1.0"
+	options       Options
+	parser        = flags.NewParser(&options, flags.HelpFlag|flags.PassDoubleDash|flags.IgnoreUnknown)
+
 	organizationResource = "org"
 	spaceResource        = "space"
 	appResource          = "app"
 	annotationElement    = "annotation"
 	labelElement         = "label"
-	addCommand           = "add"
-	removeCommand        = "remove"
-	listCommand          = "list"
+	addCommand           = "set"
+	removeCommand        = "delete"
+	listCommand          = "show"
 )
 
 func Parse(args []string) error {
@@ -61,22 +65,22 @@ func (c *AnnotatePlugin) GetMetadata() plugin.PluginMetadata {
 		for _, element := range []string{annotationElement, labelElement} {
 			commands = append(commands, plugin.Command{
 				Name:     fmt.Sprintf("%s-%s-%s", addCommand, resource, element),
-				HelpText: fmt.Sprintf("Add %s to a %s.", element, resource),
+				HelpText: fmt.Sprintf("%s %s to a %s.", cases.Title(language.English, cases.Compact).String(addCommand), element, resource),
 				UsageDetails: plugin.Usage{
 					Usage: fmt.Sprintf("cf %s-%s-%s %s_NAME KEY VALUE", addCommand, resource, element, strings.ToUpper(resource)),
 				},
 			})
-			/*commands = append(commands, plugin.Command{
+			commands = append(commands, plugin.Command{
 				Name:     fmt.Sprintf("%s-%s-%s", removeCommand, resource, element),
-				HelpText: fmt.Sprintf("Remove %s from a %s.\n   If the %s does not exist, nothing happens.", element, resource, element),
+				HelpText: fmt.Sprintf("%s %s from a %s.\n   If the %s does not exist, nothing happens.", cases.Title(language.English, cases.Compact).String(removeCommand), element, resource, element),
 				UsageDetails: plugin.Usage{
 					Usage: fmt.Sprintf("cf %s-%s-%s %s_NAME KEY", removeCommand, resource, element, strings.ToUpper(resource)),
 				},
 			})
-			*/
+
 			commands = append(commands, plugin.Command{
 				Name:     fmt.Sprintf("%s-%s-%s", listCommand, resource, element),
-				HelpText: fmt.Sprintf("List all %ss of a %s.\n   If the %s does not exist, nothing happens.", element, resource, resource),
+				HelpText: fmt.Sprintf("%s all %ss of a %s.\n   If the %s does not exist, nothing happens.", cases.Title(language.English, cases.Compact).String(listCommand), element, resource, resource),
 				UsageDetails: plugin.Usage{
 					Usage: fmt.Sprintf("cf %s-%s-%s %s_NAME", listCommand, resource, element, strings.ToUpper(resource)),
 				},
@@ -95,7 +99,7 @@ func (c *AnnotatePlugin) GetMetadata() plugin.PluginMetadata {
 }
 
 func (c *AnnotatePlugin) Run(cc plugin.CliConnection, args []string) {
-	cliConnection = cc
+	utils.CliConnection = cc
 
 	action := args[0]
 	if action == "CLI-MESSAGE-UNINSTALL" {

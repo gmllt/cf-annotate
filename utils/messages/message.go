@@ -2,14 +2,16 @@ package messages
 
 import (
 	"fmt"
+	"io"
+	"os"
+
+	"code.cloudfoundry.org/cli/types"
 	"github.com/logrusorgru/aurora"
 	"github.com/mattn/go-colorable"
 	"github.com/mattn/go-isatty"
-	"io"
-	"os"
 )
 
-const showErrorEnvKey = "CFSECURITY_DEBUG"
+const showErrorEnvKey = "CFANNOTATE_DEBUG"
 
 func init() {
 	if os.Getenv(showErrorEnvKey) != "" {
@@ -47,25 +49,25 @@ func Error(str string) {
 	if !showError {
 		return
 	}
-	Printfln("%s: %s", C.Red("Error"), str)
+	_, _ = Printfln("%s: %s", C.Red("Error"), str)
 }
 
 func Errorf(format string, a ...interface{}) {
 	if !showError {
 		return
 	}
-	Printf("%s: ", C.Red("Error"))
-	Printfln(format, a...)
+	_, _ = Printf("%s: ", C.Red("Error"))
+	_, _ = Printfln(format, a...)
 }
 
 func Fatal(str string) {
-	Printfln("%s: %s", C.Red("Error"), str)
+	_, _ = Printfln("%s: %s", C.Red("Error"), str)
 	os.Exit(1)
 }
 
 func Fatalf(format string, a ...interface{}) {
-	Printf("%s: ", C.Red("Error"))
-	Printfln(format, a...)
+	_, _ = Printf("%s: ", C.Red("Error"))
+	_, _ = Printfln(format, a...)
 	os.Exit(1)
 }
 
@@ -73,13 +75,22 @@ func Warning(str string) {
 	if !showError {
 		return
 	}
-	Printfln("%s: %s", C.Magenta("Warning"), str)
+	_, _ = Printfln("%s: %s", C.Magenta("Warning"), str)
 }
 
 func Warningf(format string, a ...interface{}) {
 	if !showError {
 		return
 	}
-	Printf("%s: ", C.Yellow("Warning"))
-	Printfln(format, a...)
+	_, _ = Printf("%s: ", C.Yellow("Warning"))
+	_, _ = Printfln(format, a...)
+}
+
+func PrintMetadata(elements map[string]types.NullString) {
+	_, _ = Println("")
+	for k, v := range elements {
+		if v.IsSet {
+			_, _ = Printfln("%s: %s", k, v.Value)
+		}
+	}
 }

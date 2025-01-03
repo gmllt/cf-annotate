@@ -9,7 +9,7 @@ linters:
     - bodyclose
     - dogsled
     - errcheck
-    - exportloopref
+    - copyloopvar
     - gocognit
     - goconst
     - gocritic
