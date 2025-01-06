@@ -19,7 +19,7 @@ type Options struct {
 }
 
 var (
-	pluginVersion = "0.1.6"
+	pluginVersion = "0.1.7"
 	options       Options
 	parser        = flags.NewParser(&options, flags.HelpFlag|flags.PassDoubleDash|flags.IgnoreUnknown)
 

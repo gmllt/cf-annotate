@@ -122,7 +122,7 @@ func ExecuteListAllOrg(orgName string) error {
 			IsSet: v.IsSet,
 		}
 	}
-	_, _ = messages.Printfln("%ss :", cases.Title(language.English, cases.Compact).String(annotationElement))
+	_, _ = messages.Printfln("\n%ss :", cases.Title(language.English, cases.Compact).String(annotationElement))
 	messages.PrintMetadata(elements)
 	elements = make(map[string]types.NullString)
 	for k, v := range data.Metadata.Labels {
@@ -131,7 +131,7 @@ func ExecuteListAllOrg(orgName string) error {
 			IsSet: v.IsSet,
 		}
 	}
-	_, _ = messages.Printfln("%ss :", cases.Title(language.English, cases.Compact).String(labelElement))
+	_, _ = messages.Printfln("\n%ss :", cases.Title(language.English, cases.Compact).String(labelElement))
 	messages.PrintMetadata(elements)
 
 	return nil
