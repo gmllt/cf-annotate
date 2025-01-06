@@ -215,7 +215,7 @@ func init() {
 		fmt.Sprintf("%s-%s-%s", addCommand, spaceResource, annotationElement),
 		desc,
 		desc,
-		&AddOrgAnnotationCommand{})
+		&AddSpaceAnnotationCommand{})
 	if err != nil {
 		panic(err)
 	}
