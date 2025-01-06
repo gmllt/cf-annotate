@@ -205,7 +205,7 @@ func init() {
 	}
 	desc = fmt.Sprintf("%s all %ss of an %s.", cases.Title(language.English, cases.Compact).String(listCommand), annotationElement, organizationResource)
 	_, err = parser.AddCommand(
-		fmt.Sprintf("%s-%s", listCommand, organizationResource),
+		fmt.Sprintf("%s-%s-%s", listCommand, organizationResource, annotationElement),
 		desc,
 		desc,
 		&ListOrgAnnotationCommand{})
@@ -214,7 +214,7 @@ func init() {
 	}
 	desc = fmt.Sprintf("%s all %ss of an %s.", cases.Title(language.English, cases.Compact).String(listCommand), labelElement, organizationResource)
 	_, err = parser.AddCommand(
-		fmt.Sprintf("%s-%s", listCommand, organizationResource),
+		fmt.Sprintf("%s-%s-%s", listCommand, organizationResource, labelElement),
 		desc,
 		desc,
 		&ListOrgLabelCommand{})
