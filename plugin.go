@@ -72,7 +72,7 @@ func (c *AnnotatePlugin) GetMetadata() plugin.PluginMetadata {
 			})
 			commands = append(commands, plugin.Command{
 				Name:     fmt.Sprintf("%s-%s-%s", removeCommand, resource, element),
-				HelpText: fmt.Sprintf("%s %s from a %s.\n   If the %s does not exist, nothing happens.", cases.Title(language.English, cases.Compact).String(removeCommand), element, resource, element),
+				HelpText: fmt.Sprintf("%s %s from a %s. If the %s does not exist, nothing happens.", cases.Title(language.English, cases.Compact).String(removeCommand), element, resource, element),
 				UsageDetails: plugin.Usage{
 					Usage: fmt.Sprintf("cf %s-%s-%s %s_NAME KEY", removeCommand, resource, element, strings.ToUpper(resource)),
 				},
@@ -80,7 +80,7 @@ func (c *AnnotatePlugin) GetMetadata() plugin.PluginMetadata {
 
 			commands = append(commands, plugin.Command{
 				Name:     fmt.Sprintf("%s-%s-%s", listCommand, resource, element),
-				HelpText: fmt.Sprintf("%s all %ss of a %s.\n   If the %s does not exist, nothing happens.", cases.Title(language.English, cases.Compact).String(listCommand), element, resource, resource),
+				HelpText: fmt.Sprintf("%s all %ss of a %s.", cases.Title(language.English, cases.Compact).String(listCommand), element, resource, resource),
 				UsageDetails: plugin.Usage{
 					Usage: fmt.Sprintf("cf %s-%s-%s %s_NAME", listCommand, resource, element, strings.ToUpper(resource)),
 				},
