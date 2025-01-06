@@ -80,7 +80,7 @@ func (c *AnnotatePlugin) GetMetadata() plugin.PluginMetadata {
 
 			commands = append(commands, plugin.Command{
 				Name:     fmt.Sprintf("%s-%s-%s", listCommand, resource, element),
-				HelpText: fmt.Sprintf("%s all %ss of a %s.", cases.Title(language.English, cases.Compact).String(listCommand), element, resource, resource),
+				HelpText: fmt.Sprintf("%s all %ss of a %s.", cases.Title(language.English, cases.Compact).String(listCommand), element, resource),
 				UsageDetails: plugin.Usage{
 					Usage: fmt.Sprintf("cf %s-%s-%s %s_NAME", listCommand, resource, element, strings.ToUpper(resource)),
 				},
