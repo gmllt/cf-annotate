@@ -32,6 +32,11 @@ type ListOrgOptions struct {
 	Org string `positional-arg-name:"ORG" required:"true" description:"Organization to read"`
 }
 
+type ListOrgMetadataCommand struct {
+	API            string         `short:"a" long:"api" description:"API endpoint (e.g. https://api.example.com)"`
+	ListOrgOptions ListOrgOptions `required:"2" positional-args:"true"`
+}
+
 type ListOrgAnnotationCommand struct {
 	API            string         `short:"a" long:"api" description:"API endpoint (e.g. https://api.example.com)"`
 	ListOrgOptions ListOrgOptions `required:"2" positional-args:"true"`
@@ -85,6 +90,50 @@ func ExecuteAddingOrg(elementType metadata.ElementType, orgName string, key stri
 		return err
 	}
 	_, _ = messages.Println(messages.C.Green("OK"))
+	return nil
+}
+
+func ExecuteListAllOrg(orgName string) error {
+	username, err := utils.CliConnection.Username()
+	if err != nil {
+		return err
+	}
+
+	orgShow := orgName
+	if orgShow != "" {
+		orgShow = fmt.Sprint(messages.C.Cyan(orgShow))
+	}
+	_, _ = messages.Printf("Listing %s of org %s as %s\n\n", messages.C.Cyan(fmt.Sprintf("%ss", "metadata")), orgShow, messages.C.Cyan(username))
+
+	orgID, err := utils.GetID(utils.OrgType, orgName)
+	if err != nil {
+		return err
+	}
+
+	data, err := utils.GetResource(utils.OrgType, orgID)
+	if err != nil {
+		return err
+	}
+
+	elements := make(map[string]types.NullString)
+	for k, v := range data.Metadata.Annotations {
+		elements[k] = types.NullString{
+			Value: v.Value,
+			IsSet: v.IsSet,
+		}
+	}
+	_, _ = messages.Printfln("%ss :", cases.Title(language.English, cases.Compact).String(annotationElement))
+	messages.PrintMetadata(elements)
+	elements = make(map[string]types.NullString)
+	for k, v := range data.Metadata.Labels {
+		elements[k] = types.NullString{
+			Value: v.Value,
+			IsSet: v.IsSet,
+		}
+	}
+	_, _ = messages.Printfln("%ss :", cases.Title(language.English, cases.Compact).String(labelElement))
+	messages.PrintMetadata(elements)
+
 	return nil
 }
 
@@ -168,6 +217,10 @@ func (c *RemoveOrgLabelCommand) Execute(_ []string) error {
 	return ExecuteRemovingOrg(metadata.LabelType, c.RemoveOrgOptions.Org, c.RemoveOrgOptions.Key)
 }
 
+func (c *ListOrgMetadataCommand) Execute(_ []string) error {
+	return ExecuteListAllOrg(c.ListOrgOptions.Org)
+}
+
 func (c *ListOrgAnnotationCommand) Execute(_ []string) error {
 	return ExecuteListOrg(metadata.AnnotationType, c.ListOrgOptions.Org)
 }
@@ -200,6 +253,15 @@ func init() {
 		desc,
 		desc,
 		&addOrgLabelCommand)
+	if err != nil {
+		panic(err)
+	}
+	desc = fmt.Sprintf("%s all %ss of an %s.", cases.Title(language.English, cases.Compact).String(listCommand), "metadata", organizationResource)
+	_, err = parser.AddCommand(
+		fmt.Sprintf("%s-%s-metadata", listCommand, organizationResource),
+		desc,
+		desc,
+		&ListOrgMetadataCommand{})
 	if err != nil {
 		panic(err)
 	}

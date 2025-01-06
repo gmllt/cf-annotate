@@ -32,6 +32,11 @@ type ListAppOptions struct {
 	App string `positional-arg-name:"APP" required:"true" description:"App to read"`
 }
 
+type ListAppMetadataCommand struct {
+	API            string         `short:"a" long:"api" description:"API endpoint (e.g. https://api.example.com)"`
+	ListAppOptions ListAppOptions `required:"2" positional-args:"true"`
+}
+
 type ListAppAnnotationCommand struct {
 	API            string         `short:"a" long:"api" description:"API endpoint (e.g. https://api.example.com)"`
 	ListAppOptions ListAppOptions `required:"2" positional-args:"true"`
@@ -100,6 +105,68 @@ func ExecuteAddingApp(elementType metadata.ElementType, appName string, key stri
 		return err
 	}
 	_, _ = messages.Println(messages.C.Green("OK"))
+	return nil
+}
+
+func ExecuteListAllApp(appName string) error {
+	username, err := utils.CliConnection.Username()
+	if err != nil {
+		return err
+	}
+
+	org, err := utils.CliConnection.GetCurrentOrg()
+	if err != nil {
+		return err
+	}
+	orgShow := org.Name
+	if orgShow != "" {
+		orgShow = fmt.Sprint(messages.C.Cyan(orgShow))
+	}
+
+	space, err := utils.CliConnection.GetCurrentSpace()
+	if err != nil {
+		return err
+	}
+	spaceShow := space.Name
+	if spaceShow != "" {
+		spaceShow = fmt.Sprint(messages.C.Cyan(spaceShow))
+	}
+
+	appShow := appName
+	if appShow != "" {
+		appShow = fmt.Sprint(messages.C.Cyan(appShow))
+	}
+	_, _ = messages.Printf("Listing %s of app %s in space %s, in org %s as %s\n", messages.C.Cyan(fmt.Sprintf("%ss", "metadata")), appShow, spaceShow, orgShow, messages.C.Cyan(username))
+
+	appID, err := utils.GetID(utils.AppType, appName)
+	if err != nil {
+		return err
+	}
+
+	data, err := utils.GetResource(utils.AppType, appID)
+	if err != nil {
+		return err
+	}
+
+	elements := make(map[string]types.NullString)
+	for k, v := range data.Metadata.Annotations {
+		elements[k] = types.NullString{
+			Value: v.Value,
+			IsSet: v.IsSet,
+		}
+	}
+	_, _ = messages.Printfln("%ss :", cases.Title(language.English, cases.Compact).String(annotationElement))
+	messages.PrintMetadata(elements)
+	elements = make(map[string]types.NullString)
+	for k, v := range data.Metadata.Labels {
+		elements[k] = types.NullString{
+			Value: v.Value,
+			IsSet: v.IsSet,
+		}
+	}
+	_, _ = messages.Printfln("%ss :", cases.Title(language.English, cases.Compact).String(labelElement))
+	messages.PrintMetadata(elements)
+
 	return nil
 }
 
@@ -219,6 +286,10 @@ func (c *RemoveAppLabelCommand) Execute(_ []string) error {
 	return ExecuteRemovingApp(metadata.LabelType, c.RemoveAppOptions.App, c.RemoveAppOptions.Key)
 }
 
+func (c *ListAppMetadataCommand) Execute(_ []string) error {
+	return ExecuteListAllApp(c.ListAppOptions.App)
+}
+
 func (c *ListAppAnnotationCommand) Execute(_ []string) error {
 	return ExecuteListApp(metadata.AnnotationType, c.ListAppOptions.App)
 }
@@ -251,6 +322,15 @@ func init() {
 		desc,
 		desc,
 		&AddAppLabelCommand{})
+	if err != nil {
+		panic(err)
+	}
+	desc = fmt.Sprintf("List all %ss of an %s.", cases.Title(language.English, cases.Compact).String(listCommand), "metadata", appResource)
+	_, err = parser.AddCommand(
+		fmt.Sprintf("%s-%s-%s", listCommand, appResource, "metadata"),
+		desc,
+		desc,
+		&ListAppMetadataCommand{})
 	if err != nil {
 		panic(err)
 	}

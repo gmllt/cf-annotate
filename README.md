@@ -28,5 +28,8 @@ A simple plugin to help you to annotate or label your Cloud Foundry organization
    show-org-label                         Show all labels of a org.
    show-space-annotation                  Show all annotations of a space.
    show-space-label                       Show all labels of a space.
+   show-app-metadata                      Show all metadata of a app.
+   show-space-metadata                    Show all metadata of a space.
+   show-org-metadata                      Show all metadata of a org.
 
 ```

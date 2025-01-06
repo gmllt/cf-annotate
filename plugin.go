@@ -19,7 +19,7 @@ type Options struct {
 }
 
 var (
-	pluginVersion = "0.1.5"
+	pluginVersion = "0.1.6"
 	options       Options
 	parser        = flags.NewParser(&options, flags.HelpFlag|flags.PassDoubleDash|flags.IgnoreUnknown)
 
@@ -62,6 +62,13 @@ func (c *AnnotatePlugin) GetMetadata() plugin.PluginMetadata {
 	// Generate commands
 	var commands []plugin.Command
 	for _, resource := range []string{organizationResource, spaceResource, appResource} {
+		commands = append(commands, plugin.Command{
+			Name:     fmt.Sprintf("%s-%s-%s", listCommand, resource, "metadata"),
+			HelpText: fmt.Sprintf("%s all %ss of a %s.", cases.Title(language.English, cases.Compact).String(listCommand), "metadata", resource),
+			UsageDetails: plugin.Usage{
+				Usage: fmt.Sprintf("cf %s-%s-%s %s_NAME", listCommand, resource, "metadata", strings.ToUpper(resource)),
+			},
+		})
 		for _, element := range []string{annotationElement, labelElement} {
 			commands = append(commands, plugin.Command{
 				Name:     fmt.Sprintf("%s-%s-%s", addCommand, resource, element),

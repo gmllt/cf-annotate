@@ -32,6 +32,11 @@ type ListSpaceOptions struct {
 	Space string `positional-arg-name:"SPACE" required:"true" description:"Space to read"`
 }
 
+type ListSpaceMetadataCommand struct {
+	API              string           `short:"a" long:"api" description:"API endpoint (e.g. https://api.example.com)"`
+	ListSpaceOptions ListSpaceOptions `required:"2" positional-args:"true"`
+}
+
 type ListSpaceAnnotationCommand struct {
 	API              string           `short:"a" long:"api" description:"API endpoint (e.g. https://api.example.com)"`
 	ListSpaceOptions ListSpaceOptions `required:"2" positional-args:"true"`
@@ -148,6 +153,60 @@ func ExecuteListSpace(elementType metadata.ElementType, spaceName string) error 
 	return nil
 }
 
+func ExecuteListAllSpace(spaceName string) error {
+	username, err := utils.CliConnection.Username()
+	if err != nil {
+		return err
+	}
+
+	org, err := utils.CliConnection.GetCurrentOrg()
+	if err != nil {
+		return err
+	}
+
+	orgShow := org.Name
+	if orgShow != "" {
+		orgShow = fmt.Sprint(messages.C.Cyan(orgShow))
+	}
+
+	spaceShow := spaceName
+	if spaceShow != "" {
+		spaceShow = fmt.Sprint(messages.C.Cyan(spaceShow))
+	}
+	_, _ = messages.Printf("Listing %s of space %s in org %s as %s\n", messages.C.Cyan(fmt.Sprintf("%ss", "metadata")), spaceShow, orgShow, messages.C.Cyan(username))
+
+	spaceID, err := utils.GetID(utils.SpaceType, spaceName)
+	if err != nil {
+		return err
+	}
+
+	data, err := utils.GetResource(utils.SpaceType, spaceID)
+	if err != nil {
+		return err
+	}
+
+	elements := make(map[string]types.NullString)
+	for k, v := range data.Metadata.Annotations {
+		elements[k] = types.NullString{
+			Value: v.Value,
+			IsSet: v.IsSet,
+		}
+	}
+	_, _ = messages.Printfln("%ss :", cases.Title(language.English, cases.Compact).String(annotationElement))
+	messages.PrintMetadata(elements)
+	elements = make(map[string]types.NullString)
+	for k, v := range data.Metadata.Labels {
+		elements[k] = types.NullString{
+			Value: v.Value,
+			IsSet: v.IsSet,
+		}
+	}
+	_, _ = messages.Printfln("%ss :", cases.Title(language.English, cases.Compact).String(labelElement))
+	messages.PrintMetadata(elements)
+
+	return nil
+}
+
 func ExecuteRemovingSpace(elementType metadata.ElementType, spaceName string, key string) error {
 	username, err := utils.CliConnection.Username()
 	if err != nil {
@@ -193,6 +252,11 @@ func (c *RemoveSpaceLabelCommand) Execute(_ []string) error {
 	return ExecuteRemovingSpace(metadata.LabelType, c.RemoveSpaceOptions.Space, c.RemoveSpaceOptions.Key)
 }
 
+func (c *ListSpaceMetadataCommand) Execute(_ []string) error {
+	return ExecuteListAllSpace(c.ListSpaceOptions.Space)
+
+}
+
 func (c *ListSpaceAnnotationCommand) Execute(_ []string) error {
 	return ExecuteListSpace(metadata.AnnotationType, c.ListSpaceOptions.Space)
 }
@@ -228,7 +292,16 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	desc = fmt.Sprintf("%s all %ss of a %s.\n   If the %s does not exist, nothing happens.", cases.Title(language.English, cases.Compact).String(listCommand), annotationElement, spaceResource, spaceResource)
+	desc = fmt.Sprintf("%s all %ss of a %s.", cases.Title(language.English, cases.Compact).String(listCommand), "metadata", spaceResource)
+	_, err = parser.AddCommand(
+		fmt.Sprintf("%s-%s-%s", listCommand, spaceResource, "metadata"),
+		desc,
+		desc,
+		&ListSpaceMetadataCommand{})
+	if err != nil {
+		panic(err)
+	}
+	desc = fmt.Sprintf("%s all %ss of a %s.", cases.Title(language.English, cases.Compact).String(listCommand), annotationElement, spaceResource)
 	_, err = parser.AddCommand(
 		fmt.Sprintf("%s-%s-%s", listCommand, spaceResource, annotationElement),
 		desc,
@@ -237,7 +310,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	desc = fmt.Sprintf("%s all %ss of a %s.\n   If the %s does not exist, nothing happens.", cases.Title(language.English, cases.Compact).String(listCommand), labelElement, spaceResource, spaceResource)
+	desc = fmt.Sprintf("%s all %ss of a %s.", cases.Title(language.English, cases.Compact).String(listCommand), labelElement, spaceResource)
 	_, err = parser.AddCommand(
 		fmt.Sprintf("%s-%s-%s", listCommand, spaceResource, labelElement),
 		desc,
@@ -246,7 +319,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	desc = fmt.Sprintf("%s a %s from a %s.\n   If the %s does not exist, nothing happens.", cases.Title(language.English, cases.Compact).String(removeCommand), annotationElement, spaceResource, annotationElement)
+	desc = fmt.Sprintf("%s a %s from a %s. If the %s does not exist, nothing happens.", cases.Title(language.English, cases.Compact).String(removeCommand), annotationElement, spaceResource, annotationElement)
 	_, err = parser.AddCommand(
 		fmt.Sprintf("%s-%s-%s", removeCommand, spaceResource, annotationElement),
 		desc,
@@ -255,7 +328,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	desc = fmt.Sprintf("%s a %s from a %s.\n   If the %s does not exist, nothing happens.", cases.Title(language.English, cases.Compact).String(removeCommand), labelElement, spaceResource, labelElement)
+	desc = fmt.Sprintf("%s a %s from a %s. If the %s does not exist, nothing happens.", cases.Title(language.English, cases.Compact).String(removeCommand), labelElement, spaceResource, labelElement)
 	_, err = parser.AddCommand(
 		fmt.Sprintf("%s-%s-%s", removeCommand, spaceResource, labelElement),
 		desc,
